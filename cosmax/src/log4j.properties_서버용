@@ -1,0 +1,19 @@
+
+# Log4j Setting file
+# Level Sort : DEBUG > INFO > WARN > ERROR > FATAL 
+log4j.rootLogger = DEBUG, stdout, dailyfile
+
+log4j.appender.stdout = org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout = org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%5p ({%t} %F[%M]:%L) [%d] - %m%n
+
+log4j.appender.dailyfile.Threshold = DEBUG
+log4j.appender.dailyfile = org.apache.log4j.DailyRollingFileAppender
+#DefaultPath = tomcat/bin
+#log4j.appender.dailyfile.File = ../webapps/cosmax_portal_log/portal.log 
+
+#log4j.appender.dailyfile.File = C:\cosmax_eis\workspace\cosmax_portal_log
+log4j.appender.dailyfile.File = /usr/local/apache-tomcat-7.0.68/webapps/ROOT/cosmax_portal_log/portal.log
+
+log4j.appender.dailyfile.layout = org.apache.log4j.PatternLayout
+log4j.appender.dailyfile.layout.ConversionPattern=%5p ({%t} %F[%M]:%L) [%d] - %m%n
