@@ -149,6 +149,7 @@ public class MenuService {
 					menuInfo.setZEIS_DATE(EisUtil.null2Blank(table.getString("ZEIS_DATE")));
 					menuInfo.setZSTART_MENU_YN(EisUtil.null2Blank(table.getString("ZSTART_MENU_YN")));
 					menuInfo.setZBOOKMARK(EisUtil.null2Blank(table.getString("ZBOOKMARK")));
+					menuInfo.setZFIXED(EisUtil.null2Blank(table.getString("ZFIXED")));
 
 					list.addElement(menuInfo);
 				

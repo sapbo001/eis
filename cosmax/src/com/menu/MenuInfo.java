@@ -20,6 +20,7 @@ public class MenuInfo {
 	private String ZTEXT_LANG;
 	private String ZSTART_MENU_YN;
 	private String ZBOOKMARK;
+	private String ZFIXED;
 	
 	public String getZSTART_MENU_YN() {
 		return ZSTART_MENU_YN;
@@ -150,6 +151,14 @@ public class MenuInfo {
 
 	public void setZBOOKMARK(String zBOOKMARK) {
 		ZBOOKMARK = zBOOKMARK;
+	}
+
+	public String getZFIXED() {
+		return ZFIXED;
+	}
+
+	public void setZFIXED(String zFIXED) {
+		ZFIXED = zFIXED;
 	}
 
 }

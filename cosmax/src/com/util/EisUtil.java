@@ -52,7 +52,6 @@ public class EisUtil {
     	  } catch(Exception e) {
     	      return false;
     	  }
-    	}    
-	
+    }
 
 }
