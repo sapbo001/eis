@@ -14,100 +14,194 @@
 	String langu = EisUtil.null2Blank(request.getParameter("langu"));
 	if(EisUtil.isBlank(langu)) 
 		langu = "3"; //값이 없는 경우 한국어로 세팅
+
+	/** 쿠키에서 유저 아이디 호출 ***************/
+	String cookieUserId = "";
+	Cookie idCookie = null;
+	Cookie[] cookies = request.getCookies();
+	if (cookies != null) {
+		logger.debug("쿠키가 null이 아닌 경우");
+		logger.debug("cookies.length: " + cookies.length);
+		for (int i = 0; i < cookies.length; i++) {
+			logger.debug("cookies[" + i + "].getName(): "
+					+ cookies[i].getName());
+			if (cookies[i].getName().equals("cookieUserId")) {
+				logger.debug("쿠키값에 아이디가 있음");
+				idCookie = cookies[i];
+				break;
+			} // if	  
+		} // for
+	} // if		
+	if (idCookie != null) {
+		cookieUserId = EisUtil.null2Blank(idCookie.getValue());
+	}
+	/*****************************************/
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>Cosmax EIS</title>    
-	<link rel="stylesheet" href="css/style.css" />
-	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
-	<script type="text/javascript" src="js/lnb.js"></script>
-	<script src="js/tree2_cookie.js" type="text/javascript"></script>
-	<script src="js/tree2_treeview.js" type="text/javascript"></script>
-	<script src="js/tree2_demo.js" type="text/javascript"></script>
-	<script src="js/jquery-ui.js"></script>	
-    <script type="text/javascript">
-    	//화면 로딩시 호출
-    	function fn_load() {
-//     		alert("fn_load");
-<%
-			if(EisUtil.isNotBlank(msg)) {
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Cosmax EIS</title>
+<link rel="stylesheet" href="css/style.css" />
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/lnb.js"></script>
+<script src="js/tree2_cookie.js" type="text/javascript"></script>
+<script src="js/tree2_treeview.js" type="text/javascript"></script>
+<script src="js/tree2_demo.js" type="text/javascript"></script>
+<script src="js/jquery-ui.js"></script>
+<script type="text/javascript">
+	//화면 로딩시 호출
+	function fn_load() {
+		//     		alert("fn_load");
+<%if (EisUtil.isNotBlank(msg)) {
 				out.print("alert('" + msg + "')");
-			}					
-%>			
-			$("#passwd").focus(); // input박스 아이콘 표시유무 체크
-			$("#userid").focus(); // input박스 아이콘 표시유무 체크				
-    	}
-    	
-    	//로그인 처리페이지로 이동
-        function fn_login(){
-            var userid = $("#userid").val();
-            var passwd = $("#passwd").val();            
-            if(userid == "") {
-            	alert("아이디를 입력해 주세요.");
-            	$("#userid").focus();            	
-            }
-            else if(passwd == "") {
-            	alert("비밀번호를 입력해 주세요.");
-            	$("#passwd").focus();
-            	return;
-            } else {
-	            //var f = document.getElementById("frm");
-	            //f.action = "loginPrc.jsp"
-	            //f.submit();
-	            
-	            // 팝업 방식으로 수정
-        		var popUrl = "loginPrc.jsp";
-          		popUrl = popUrl + "?userid=" + userid + "&passwd=" + passwd;
-        		var left = 0;
-        		var top = 0;
-        		var lv_with = 1280 - 4;
-        		var lv_height = 768 - 4;
-        		
-        		//var popOption = "top="+top+",left="+left+",width="+lv_with+", height="+lv_height+",resizable=no,scrollbars=no,status=no,menubear=no,location=no,toolbar=no;";    //팝업창 옵션(optoin)
-        		var popOption = "top="+top+",left="+left+",width="+lv_with+", height="+lv_height+",resizable=yes,scrollbars=no,status=no,menubear=no,location=yes,toolbar=no;";    //팝업창 옵션(optoin)
-        		
-        		window.open(popUrl,"",popOption);	     
-				window.open("","_self", ""); // 경고창없이 닫히게 하기위함
-				window.close();				 // 경고창없이 닫히게 하기위함		        		
-            }    	    
-    	}    	
-    </script>
+			}%>
+	$("#passwd").focus(); // input박스 아이콘 표시유무 체크
+		$("#userid").focus(); // input박스 아이콘 표시유무 체크				
+
+		//$("input:radio[name='display_size']:radio[value='']").prop("checked",true);
+	}
+
+	//로그인 처리페이지 호출
+	function fn_login() {
+		var userid = $("#userid").val();
+		var passwd = $("#passwd").val();
+		var idsave = $("#idsave").val();
+		if (userid == "") {
+			alert("아이디를 입력해 주세요.");
+			$("#userid").focus();
+		} else if (passwd == "") {
+			alert("비밀번호를 입력해 주세요.");
+			$("#passwd").focus();
+			return;
+		} else if (userid == passwd) {
+			alert("아이디와 비밀번호가 동일한 경우 \n비밀번호 변경 후 로그인이 가능합니다.");
+			fn_pwdchg();
+		} else {
+			var f = document.getElementById("frm");
+			f.action = "loginPrc.jsp"
+			f.submit();
+
+			// 팝업 방식으로 수정
+			//var popUrl = "loginPrc.jsp";
+			//popUrl = popUrl + "?userid=" + userid + "&passwd=" + passwd + "&idsave=" + idsave;
+			//var left = 0;
+			//var top = 0;
+			//var lv_with = 1280 - 4;
+			//var lv_height = 768 - 4;
+
+			//var popOption = "top="+top+",left="+left+",width="+lv_with+", height="+lv_height+",resizable=no,scrollbars=no,status=no,menubear=no,location=no,toolbar=no;";    //팝업창 옵션(optoin)
+			//var popOption = "top="+top+",left="+left+",width="+lv_with+", height="+lv_height+",resizable=yes,scrollbars=no,status=no,menubear=no,location=yes,toolbar=no;";    //팝업창 옵션(optoin)
+			//var popOption = "top="+top+",left="+left+",fullscreen=yes,resizable=yes,scrollbars=no,status=no,menubar=no,location=no,toolbar=no,directories=no,channelmode=no,titlebar=yes"; //전체창
+
+			//window.open(popUrl,"",popOption);	     
+			//window.open("","_self", ""); // 경고창없이 닫히게 하기위함
+			//window.close();				 // 경고창없이 닫히게 하기위함		        	          		          		          
+		}
+	}
+
+	//비밀번호 변경페이지 호출
+	function fn_pwdchg() {
+
+		// 팝업 방식
+		var popUrl = "pwdchg.jsp";
+		var left = 400;
+		var top = 200;
+		var lv_with = 550;
+		var lv_height = 600;
+
+		//var popOption = "top="+top+",left="+left+",width="+lv_with+", height="+lv_height+",resizable=no,scrollbars=no,status=no,menubear=no,location=no,toolbar=no;";    //팝업창 옵션(optoin)
+		var popOption = "top="
+				+ top
+				+ ",left="
+				+ left
+				+ ",width="
+				+ lv_with
+				+ ", height="
+				+ lv_height
+				+ ",resizable=yes,scrollbars=no,status=no,menubear=no,location=yes,toolbar=no;"; //팝업창 옵션(optoin)
+
+		window.open(popUrl, "", popOption);
+	}
+
+	// 고정해상도 세팅
+	var display_flag = "X";
+	function fn_display_size() {
+		if (display_flag == "X") {
+			display_flag = "";
+			$("#display_span").css("display", "block");
+		} else {
+			display_flag = "X";
+			$("#display_span").css("display", "none");
+		}
+	}
+</script>
 </head>
 <body class="login" onload="javascript:fn_load();">
 	<div id="login">
 		<div class="top_logo">
-			<span class="top_logo_red">EIS</span> Login
+			<!--  <span class="top_logo_red">임원정보시스템</span> 로그인 -->
+			임원정보시스템
 		</div>
 		<form id="frm" name="frm" method="post">
 			<ul>
-				<li>
-					<input type="text" tabindex="1" id="userid" name="userid" maxlenght="20" value="CBO_BO1"
-					style="background:#FFF url('images/left_id.png') no-repeat left;font-size:16px;line-height:45px;"  
-					onfocus="this.style.backgroundImage='url(none)';" 
-					onblur="if(this.value.length==0){this.style.backgroundImage='url(images/left_id.png)'}else{this.style.backgroundImage='url(none)'}"
-					/>
+				<li><input class="login_input " type="text" tabindex="1"
+					id="userid" name="userid" maxlenght="20" value="<%=cookieUserId%>"
+					style="background: #FFF url('images/left_id.png') no-repeat left; font-size: 16px; line-height: 45px;"
+					onfocus="this.style.backgroundImage='url(none)';"
+					onblur="if(this.value.length==0){this.style.backgroundImage='url(images/left_id.png)'}else{this.style.backgroundImage='url(none)'}" />
 				</li>
-				<li>
-					<input type="password" tabindex="2" name="passwd" id="passwd"  maxlenght="20" value="123123" 
+				<li><input class="login_input " type="password" tabindex="2"
+					name="passwd" id="passwd" maxlenght="20" value=""
 					onkeyup="if(window.event.keyCode=='13'){fn_login();}"
-					style="background:#FFF url('images/left_pw.png') no-repeat left;font-size:16px;line-height:45px;"  
-					onfocus="this.style.backgroundImage='url(none)';" 
-					onblur="if(this.value.length==0){this.style.backgroundImage='url(images/left_pw.png)'}else{this.style.backgroundImage='url(none)'}"
-					/>
+					style="background: #FFF url('images/left_pw.png') no-repeat left; font-size: 16px; line-height: 45px;"
+					onfocus="this.style.backgroundImage='url(none)';"
+					onblur="if(this.value.length==0){this.style.backgroundImage='url(images/left_pw.png)'}else{this.style.backgroundImage='url(none)'}" />
 				</li>
-		    </ul>
-	    </form>
-	    <div class="btn_log">
-			<a href="javascript:fn_login();">Login</a>
+			</ul>
+			<div align="center">
+				<input type="checkbox" id="idsave" name="idsave" value="Y" checked
+					style="width: 13px; height: 13px; border: 1px; vertical-align: middle; margin-bottom: 2px" />
+				아이디 저장
+			</div>
+
+			<div class="btn_log">
+				<a href="javascript:fn_login();">Login</a>
+			</div>
+			<div class="login_notice" style="z-index: 3">
+				아이디 및 비밀번호 모두 대소문자를 구별합니다. <br /> 비밀번호 분실시에는 EIS 시스템 담당자에게 문의
+				부탁드립니다. <br /> <br />
+				<div style="z-index: 2">
+					<a href="javascript:fn_pwdchg();">[비밀번호 변경]</a>
+				</div>
+			</div>
+		</form>
+		<div id="display_div"
+			style="position: absolute; padding: 80px 0px 0px 20px; z-index: 1">
+			<!-- position:relative -->
+			<span id="display_span" style="display: none;"> <font
+				style="font-weight: bold" color="green">[고정 해상도: </font> <input
+				type="radio" name="display_size" value="0"
+				style="WIDTH: 12px; HEIGHT: 12px" checked />&nbsp;<font
+				style="font-weight: bold" color="green">미사용</font> <input
+				type="radio" name="display_size" value="1920"
+				style="WIDTH: 12px; HEIGHT: 12px" />&nbsp;<font
+				style="font-weight: bold" color="green">1920</font> <input
+				type="radio" name="display_size" value="1600"
+				style="WIDTH: 12px; HEIGHT: 12px" />&nbsp;<font
+				style="font-weight: bold" color="green">1600</font> <input
+				type="radio" name="display_size" value="1440"
+				style="WIDTH: 12px; HEIGHT: 12px" />&nbsp;<font
+				style="font-weight: bold" color="green">1440</font> <font
+				style="font-weight: bold" color="green">] </font>
+			</span>
 		</div>
-	    <div class="login_notice">
-			사번정보가 아닌 EIS 통합계정 정보를 입력하셔야 합니다.
-			<br/>
-			(계정정보는 EIS 시스템 담당자에게 문의 부탁드립니다.)
-		</div>    
+		<div id="display_div_img"
+			style="position: absolute; padding: 80px 0px 0px 0px;">
+			<img src="images/computer.png" style="cursor: pointer;"
+				onclick="javascript:fn_display_size();" />
+		</div>
+
 	</div>
-</form>
 </body>
 </html>

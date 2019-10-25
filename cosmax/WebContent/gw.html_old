@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Cosmax EIS</title>
+	<script type="text/javascript">
+		function fn_win() {
+			var sabun = document.getElementById("sabun").value;	
+			var popUrl = "loginPrc.jsp";
+	  		popUrl = popUrl + "?sabun=" + sabun;
+			var left = 0;
+			var top = 0;
+			//var lv_with = 1280 - 4;
+			//var lv_height = 768 - 4;
+			
+					
+			//var popOption = "top="+top+",left="+left+",width="+lv_with+", height="+lv_height+",resizable=no,scrollbars=no,status=no,menubear=no,location=no,toolbar=no;";    //팝업창 옵션(optoin)
+			//var popOption = "top="+top+",left="+left+",width="+lv_with+", height="+lv_height+",resizable=yes,scrollbars=no,status=no,menubear=no,location=no,toolbar=no;";    //팝업창 옵션(optoin)
+			//var popOption = "top="+top+",left="+left+",fullscreen=yes,resizable=yes,scrollbars=no,status=no,menubear=no,location=no,toolbar=no";    //팝업창 옵션(optoin)
+			var popOption = "top="+top+",left="+left+",fullscreen=yes,resizable=yes,scrollbars=no,status=no,menubar=no,location=no,toolbar=no,directories=no,channelmode=no,titlebar=yes";    //팝업창 옵션(optoin)
+			
+			window.open(popUrl,"",popOption);
+			//window.close();
+		}
+	</script>
+</head>
+<body>
+	<h1>그룹웨어 테스트 페이지</h1>
+	<br/>
+	<a href = "javascript:fn_win();">그룹웨어 링크이미지</a> -- 클릭
+	<br/><br/>
+	[파라미터]-sabun(암호화): <input type="text" name="sabun" id="sabun" value="14256618898" /> 112150803 * 127 + 13466917
+</body>
+</html>

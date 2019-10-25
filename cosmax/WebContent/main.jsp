@@ -20,14 +20,16 @@
 	} else {			
 	    String userid = (session.getAttribute("ZEIS_USER_ID") == null) ? "" : session.getAttribute("ZEIS_USER_ID").toString();
 		String langu = (session.getAttribute("ZDEFALUT_LANGU") == null) ? "" : session.getAttribute("ZDEFALUT_LANGU").toString();
+		String sabun = (session.getAttribute("ZSABUN") == null) ? "" : session.getAttribute("ZSABUN").toString();
 				
 		logger.debug("userid: " + userid);
 		logger.debug("langu: " + langu);
+		logger.debug("sabun: " + sabun);
 		
 		menu = new MenuService();
 		
 		// 메뉴 조회.
-		Vector<MenuInfo> vlist = menu.getMenu(conJCO, userid, langu);	
+		Vector<MenuInfo> vlist = menu.getMenu(conJCO, userid, langu, sabun, "", "");	
 		// Sub메뉴 객체
 		Vector<MenuInfo> slist = new Vector<MenuInfo>();	
 		
@@ -54,9 +56,14 @@
 			// lLv의 갯수 조회.		
 			if( MInfo.getZLEVEL2().equals("00") && MInfo.getZLEVEL3().equals("00")) {			
 	// 		if( MInfo.getZLEVEL2().equals("00") && MInfo.getZLEVEL3().equals("00") && MInfo.getZNODE_TYPE().equals("F")) {
-				lv_llv_size++;
+				//logger.debug("Lev1 >> MInfo.getZTEXT()): " + MInfo.getZTEXT() +"--------------------------");
+				//lv_llv_size++;
+				if (lv_llv_size < Integer.parseInt(MInfo.getZLEVEL1())) { // 대메뉴 최대크기 구하기
+					lv_llv_size = Integer.parseInt(MInfo.getZLEVEL1());
+				}
 			} else { // 서브의 갯수 조회.	
 				lv_llv_sub_size++;
+// 				logger.debug("Lev2 >> MInfo.getZTEXT()): " + MInfo.getZTEXT());
 			}
 			
 			// 2Lv, 3Lv의 메뉴를 sublist에 담는다.
@@ -64,6 +71,7 @@
 				slist.addElement(MInfo);
 			}												
 		}
+// 		logger.debug("lv_llv_size: " + lv_llv_size);
 %> 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko">
@@ -72,7 +80,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=10" />
 <!-- <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" /> -->
 <title>Cosmax EIS</title>
-<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/style.css?t=20190423" />
 <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="js/lnb.js"></script>
 <script src="js/tree2_cookie.js" type="text/javascript"></script>
@@ -89,6 +97,7 @@ body {
 <script type="text/javascript">
 	var init = ""; // 페이지 초기여부 변수
 	var selectTopMenuId = ""; //1~10 (1~9는 한자리수임)
+	var iframeInit = "Y";
 	
 	/**
 	* 상단 메뉴 선택 시 호출	
@@ -103,7 +112,8 @@ body {
 		var lv_img_id = ""; // li tag Bg Img ID
 
 		//for(var i = 1 ; i <= <%=lv_llv_size%> ; i++) {
-		for(var i = 2 ; i <= <%=lv_llv_size + 1%> ; i++) { // 메인페이지때문에 순번이 2부터 시작함
+		//for(var i = 2 ; i <= <%=lv_llv_size + 1%> ; i++) { // 메인페이지때문에 순번이 2부터 시작함
+	    for(var i = 2 ; i <= <%=lv_llv_size%> ; i++) { // 메인페이지때문에 최대값 기준으로 변경
 			
 			// 각레벨별 메뉴ID가 2자리이므로 for문의 한자리수를 2자리로 padding처리(ex: '1' -> '01')
 			if(i<10) { 
@@ -115,6 +125,7 @@ body {
 				lv_li_id = i;
 				lv_img_id = i;
 			}	
+			//alert("i:" + i +"\n id:" + id+"\n Number(id):" + Number(id));			
 		
 			// 선택한 메뉴인 경우
 			if(i == Number(id)) {																
@@ -128,7 +139,8 @@ body {
 				$("#li_"+lv_li_id).removeClass('active'); // 헤더 메뉴 선택 시 강조 제거		
 				$("#li_"+lv_li_id).removeClass("top_menu_bgimg"+i+"_on"); // 헤더 메뉴 Bg이미지 변경(밝은 이미지)
 				$("#li_"+lv_li_id).addClass("top_menu_bgimg"+i+"_off");   // 헤더 메뉴 Bg이미지 변경(어두운 이미지)
-				$("div[id^='"+lv_div_id+"']").css("display", "none");     // 좌측 메뉴 lv_div_id로 시작되는 div는 숨김
+				//alert("div[id^='"+lv_div_id+"']");
+				$("div[id^='"+lv_div_id+"']").css("display", "none");     // 좌측 메뉴 lv_div_id로 시작되는 div는 숨김				
 			}			
 		}
 	}
@@ -229,7 +241,8 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 			
 			var lv_li_id = "";
 			//for(var i = 1 ; i <= <%=lv_llv_size%> ; i++) {
-			for(var i = 2 ; i <= <%=lv_llv_size + 1%> ; i++) { // 메인페이지때문에 순번이 2부터 시작함		
+			//for(var i = 2 ; i <= <%=lv_llv_size + 1%> ; i++) { // 메인페이지때문에 순번이 2부터 시작함		
+			for(var i = 2 ; i <= <%=lv_llv_size%> ; i++) { // 메인페이지 최대값 기준으로 변경
 				
 				// 각레벨별 메뉴ID가 2자리이므로 for문의 한자리수를 2자리로 padding처리(ex: '1' -> '01')
 				if(i<10) {					
@@ -256,7 +269,8 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 	* 화면로딩시 자동실행하는 함수
 	* - 첫시작화면이 MAIN인 경우에는 메인페이지로 화면을 구성하고 그외는 서브페이지로 구성
 	*/	
-	function fn_init() {		
+	function fn_init() {
+			
 		selectTopMenuId = ""; // 메뉴 초기화
 		
 		var lv1 = '<%=startMInfo.getZLEVEL1()%>';		
@@ -288,14 +302,60 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 	function fn_gopage(lv1, lv2, lv3, iDocID, PMENUID, PDATE, PLANGU) {
 
 		// 메인이 아닌 경우
+//		if (PMENUID != "MAIN") { 
+//			fn_menuChange(lv1, lv2, lv3); // 좌측 선택된것 보이기
+//		}
+ 		
+		// 주석 시작 ---------------------------------------------------
+		// iframe(Dashboard)영역의 URL 변경
+		var url = "goPage.jsp?iDocID="+iDocID+"&PMENUID="+encodeURI(encodeURIComponent((PMENUID)))+"&PDATE="+PDATE+"&PLANGU="+PLANGU;
+ 		$('#dashboard').attr('src', url);
+ 		
+		// 메인이 아닌 경우 <-- 호출순서변경(06.10)
 		if (PMENUID != "MAIN") { 
 			fn_menuChange(lv1, lv2, lv3); // 좌측 선택된것 보이기
 		}
+		// 주석 끝 ---------------------------------------------------
+		// 주석 시작 ---------------------------------------------------
+// 		try {		    			
+// 			if (iframeInit == "Y") { //최초 Iframe 로딩시
+// 				fn_gopagePrc(lv1, lv2, lv3, iDocID, PMENUID, PDATE, PLANGU);
+// 				iframeInit = "N";
+// 			} else {
+// 				setTimeout(fn_gopagePrc(lv1, lv2, lv3, iDocID, PMENUID, PDATE, PLANGU), 5); // 20분 넘게 브라우져 미작동시 iframe 늦게 호출하는것 방지: 5ms 후에 실행
+// 			}
+// 		} catch (e) {
+// 		    // invalid setTimeout
+// 		    fn_gopagePrc(lv1, lv2, lv3, iDocID, PMENUID, PDATE, PLANGU);
+// 		}
+		// 주석 끝 ---------------------------------------------------
+		
+		// 메뉴별 접속로그 남기기	-----------------------	
+		$("#ZMENU_CD").val(PMENUID);
+		$("#lv1").val(lv1);
+		$("#lv2").val(lv2);
+		$("#lv3").val(lv3);
+		$("#logForm").attr("target", "logIframe").attr("method", "post").attr("action", "eisConLogPrc.jsp").submit();
+		// --------------------------------------------
+	}
+	
+	// 20분 넘게 브라우져 미작동시 iframe 늦게 호출하는것 방지(미사용)
+	function fn_gopagePrc(lv1, lv2, lv3, iDocID, PMENUID, PDATE, PLANGU) {
+
+		// 메인이 아닌 경우
+//		if (PMENUID != "MAIN") { 
+//			fn_menuChange(lv1, lv2, lv3); // 좌측 선택된것 보이기
+//		}
  		
 		// iframe(Dashboard)영역의 URL 변경
 		var url = "goPage.jsp?iDocID="+iDocID+"&PMENUID="+encodeURI(encodeURIComponent((PMENUID)))+"&PDATE="+PDATE+"&PLANGU="+PLANGU;
  		$('#dashboard').attr('src', url);
-	}
+ 		
+		// 메인이 아닌 경우 <-- 호출순서변경(06.10)
+		if (PMENUID != "MAIN") { 
+			fn_menuChange(lv1, lv2, lv3); // 좌측 선택된것 보이기
+		} 
+	}	
 	
 	/**
 	* 선택된 메뉴의 좌측메뉴 하이라이트 및 보이게 하기
@@ -379,9 +439,143 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 	* - 화면의 비율을 맞추기 위해 높이 기준으로 산정
 	*/		
 	function fn_win_size(init, callFunction) {
-		//alert("fn_win_size - init / callFunction: " + init + " / " + callFunction);
-		//alert("Number($(window).width()): " + Number($(window).width()));
-		//alert("Number($(window).height()): " + Number($(window).height()));
+// 		alert("fn_win_size - init / callFunction: " + init + " / " + callFunction);
+// 		alert("Number($(window).width()): " + Number($(window).width()));
+// 		alert("Number($(window).height()): " + Number($(window).height()));
+// 		alert("$(window).outerWidth(true): " + $(window).outerWidth(true));
+// 		alert("$(window).outerHeight(true): " + $(window).outerHeight(true));
+// 		alert("Number($(document).width()): " + Number($(document).width()));
+// 		alert("Number($(document).height()): " + Number($(document).height()));
+		var fix_main_w = 1280; // 메인페이지 Iframe(DashBoard영역) 기본 width  <-- 비율 계산용
+		var fix_main_h = 715;  // 메인페이지 Iframe(DashBoard영역) 기본 height <-- 비율 계산용
+		
+		var fix_main_w_minus_border = 1280 - 26;
+		
+		var fix_sub_w = 1095; // 서브페이지 Iframe(DashBoard영역) 기본 width  <-- 비율 계산용
+		var fix_sub_h = 715;  // 서브페이지 Iframe(DashBoard영역) 기본 height <-- 비율 계산용
+		var fix_top = 53; // 상단 메뉴의 height
+		var fix_left = 185; // 좌측 메뉴의 width
+		
+		var red_w = 0;
+		var red_h = 0;
+		
+		var header_w = 0;
+		//var header_w = Number($(window).width()) - fix_left;
+		//var header_w = Number($(window).width());
+		
+		//red_h = parseInt($(window).height()) - 53;
+		var win_w = Number($(window).width());
+		var win_h = Number($(window).height());
+		red_h = Number($(window).height()) - 53;
+		
+		var wrap_h = 0;
+		var display_size = <%=EisUtil.null2Blank(request.getParameter("display_size"))%>
+		
+		//if (Number($(window).width()) < fix_main_w_minus_border) { // 화면해상도가 1280보다 작거나 같은 경우
+		if ($.isNumeric(display_size) && display_size > 0) { // 고정화면 해상도를 지정한 경우
+			//alert("1600해상도인 경우");		
+			window.document.body.scroll = "yes"; // 스크롤 생성		
+			//header_w = 1280; //헤더 사이즈가 1280보다 작으면 상단 메뉴 찌그러짐 방지
+			// 메인 페이지인 경우 width를 전부 이용
+			if (init == "init") {				
+				/*
+				red_w = fix_main_w - 35; // 스크롤 및 좌우테두리 사이즈 감안
+				//red_h = fix_main_h * red_w / fix_main_w; // 가로사이즈 기준으로 높이 조정
+				red_h = fix_main_h;
+				*/
+				header_w = display_size - 35;
+				red_w = display_size - 35; // 스크롤 및 좌우테두리 사이즈 감안
+				//red_h = fix_main_h * red_w / fix_main_w; // 가로사이즈 기준으로 높이 조정			
+				red_h = red_w / 1.55; // 가로사이즈 기준으로 높이 조정		
+				wrap_h = fix_top + red_h;
+				$('#wrap').css('height', wrap_h + 'px');
+			} else {
+				/*
+				red_w = fix_sub_w - 35; // 스크롤 및 좌우테두리 사이즈 감안
+				//red_h = fix_sub_h * red_w / fix_main_w; // 가로사이즈 기준으로 높이 조정
+				red_h = fix_sub_h;				
+				*/
+				header_w = display_size - 35;
+				red_w = display_size - 185 - 35; // 스크롤 및 좌우테두리 사이즈 감안
+				//red_h = fix_sub_h * red_w / fix_main_w; // 가로사이즈 기준으로 높이 조정
+				red_h = red_w / 1.55; // 가로사이즈 기준으로 높이 조정
+				wrap_h = fix_top + red_h;
+				$('#wrap').css('height', wrap_h + 'px');
+			}	
+		} else if (Number($(window).width()) <= fix_main_w) { // 화면해상도가 1280보다 작은 경우 경우(ex:1280해상도에 f11키 누르기전)
+// 			alert("화면해상도가 1280보다 작거나 같은 경우 경우");
+			window.document.body.scroll = "yes"; // 스크롤 생성			
+			header_w = 1280; //헤더 사이즈가 1280보다 작으면 상단 메뉴 찌그러짐 방지
+			
+			// 메인 페이지인 경우 width를 전부 이용
+			if (init == "init") {				
+				red_w = fix_main_w - 20; // 스크롤 및 좌우테두리 사이즈 감안
+				red_h = fix_main_h - (20 / 1.66); // 가로사이즈 기준으로 높이 조정(1.6은 가로 세로 비율)
+				wrap_h = fix_top + red_h;
+				$('#wrap').css('height', wrap_h + 'px');
+			} else {
+				red_w = fix_sub_w - 20; // 스크롤 및 좌우테두리 사이즈 감안
+				red_h = fix_sub_h - (20 / 1.66); // 가로사이즈 기준으로 높이 조정(1.6은 가로 세로 비율)				
+				wrap_h = fix_top + red_h;
+				$('#wrap').css('height', wrap_h + 'px');
+				//red_h = fix_sub_h; // 가로사이즈 기준으로 높이 조정(1.6은 가로 세로 비율)
+			}			
+		} else {  // 고정이 아니며 고해상도인 경우
+			//alert("고정이 아니며 고해상도인 경우");
+			//$('#wrap').css('height', '100%');
+			// 메인 페이지인 경우 width를 전부 이용
+			if (init == "init") {		
+				//red_w = parseInt($(window).width());
+				//red_w = Number($(window).width());
+				//red_w = red_h * fix_main_w / fix_main_h;
+				//header_w = red_w;
+				
+				/* 서브페이지와 메뉴사이즈가 동일함(전체화면 기준으로 화면 상하에 공백이 발생 할 수 있음)*****/
+				red_w = red_h * fix_sub_w / fix_sub_h;
+				red_w = red_w + fix_left
+				header_w = red_w;			
+				/**********************************************************************************/
+				
+				/* 전체사이즈 기준 (메인화면과 서브화면의 헤더 사이즈가 상이함)****************************/
+				/*
+				red_w = red_h * fix_main_w / fix_main_h;
+				//red_w = red_w + fix_left
+				header_w = red_w;
+				*/
+				/**********************************************************************************/
+				
+				//rd_w = red_h * fix_sub_w / fix_sub_h;
+				//header_w = red_w + fix_left;
+				
+			// 서브 페이지인 경우 서브페이지 비율에 따라 width 산정
+			} else {
+				red_w = red_h * fix_sub_w / fix_sub_h;
+				header_w = red_w + fix_left;	
+			}				
+			window.document.body.scroll = "no";   // 스크롤 제거
+					
+// 			alert("header_w: " + header_w);		
+// 			alert("Number($(window).width()): " + Number($(window).width()));
+// 			alert("fix_main_w: " + fix_main_w);		
+		}
+		
+		$('#wrap').css('width', header_w + 'px');
+		$('#header').css('width', header_w + 'px');	
+// 		alert("header_w: " + header_w);
+// 		alert("red_w + fix_left: " + red_w + fix_left);
+		
+		$('#dashboard').css('width', red_w + 'px');  //Iframe(DashBoard영역) width 세팅
+	  	$('#dashboard').css('height', red_h + 'px'); //Iframe(DashBoard영역) width 세팅		  			
+	}
+	
+	
+	/**
+	* 미사용(높이기준으로만 사이즈 조정한 로직함수)
+	* 화면 사이즈 변경에 따라 계산하여 Iframe(DashBoard영역) 사이즈 변경
+	* - 메인 및 서브 각각 사이즈 다르게 산정(좌측메뉴 영역 영향)
+	* - 화면의 비율을 맞추기 위해 높이 기준으로 산정
+	*/		
+	function fn_win_size_old20160727(init, callFunction) {
 		var fix_main_w = 1280; // 메인페이지 Iframe(DashBoard영역) 기본 width  <-- 비율 계산용
 		var fix_main_h = 715;  // 메인페이지 Iframe(DashBoard영역) 기본 height <-- 비율 계산용
 		
@@ -398,7 +592,9 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 		//var header_w = Number($(window).width());
 		
 		//red_h = parseInt($(window).height()) - 53;
-		red_h = Number($(window).height()) - 53;	
+		var win_w = Number($(window).width());
+		var win_h = Number($(window).height());
+		red_h = Number($(window).height()) - 53;
 		
 		// 메인 페이지인 경우 width를 전부 이용
 		if (init == "init") {		
@@ -427,24 +623,22 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 		// 서브 페이지인 경우 서브페이지 비율에 따라 width 산정
 		} else {
 			red_w = red_h * fix_sub_w / fix_sub_h;
-			header_w = red_w + fix_left;
-		}		
+			header_w = red_w + fix_left;	
+		}				
 				
 		if (header_w < fix_main_w || Number($(window).width()) < fix_main_w) { //1280보다 헤더 사이즈가 작은거나 윈도우창이 1280보다 작은 경우
 			header_w = 1280; // 헤더 사이즈가 1280보다 작으면 상단 메뉴 찌그러짐 방지
 			window.document.body.scroll = "auto"; // 스크롤 생성
 		} else {
-			window.document.body.scroll = "no";   // 스크롤 제거			
+			window.document.body.scroll = "no";   // 스크롤 제거
 		}
 		
 		$('#wrap').css('width', header_w + 'px');
 		$('#header').css('width', header_w + 'px');	
-		//alert("header_w: " + header_w);
-		//alert("red_w + fix_left: " + red_w + fix_left);
 		
 		$('#dashboard').css('width', red_w + 'px');  //Iframe(DashBoard영역) width 세팅
 	  	$('#dashboard').css('height', red_h + 'px'); //Iframe(DashBoard영역) width 세팅		  			
-	}
+	}	
 
 	/**
 	* 세로고침 방지
@@ -467,7 +661,6 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 	* 화면 사이즈 변경시 호출
 	*/	
 	$(document).ready(function() {
-				 
 		$(window).resize(function() { // 브라우저 사이즈 변경 감지					
 			fn_win_size(init, "resize");
 		});   
@@ -487,41 +680,61 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 			   $("ul",this).slideUp("fast");
 			});
 	  });	
+	
+	function fn_reloadmenu(zurl){
+		var display_size = <%=EisUtil.null2Blank(request.getParameter("display_size"))%>
+		var lv1 = '<%=request.getParameter("lv1")%>';		
+		var lv2 = '<%=request.getParameter("lv2")%>';
+		var lv3 = '<%=request.getParameter("lv3")%>';	 
+		var iDocID = '<%=request.getParameter("iDocID")%>'; 
+		var PMENUID = '<%=request.getParameter("PMENUID")%>';  
+		var PDATE = '<%=request.getParameter("PDATE")%>';
+		var PLANGU = '<%=request.getParameter("PLANGU")%>';
+		
+		
+		var url = "reloadMenu.jsp?zurl="+zurl+"&display_size="+display_size;
+
+		console.log(url);
+		
+		window.location.href = url;
+		
+	}
 
 	/**
 	* 닫기 버튼 클릭 시 로그아웃(세션 삭제) 처리
 	* - 숨겨진 iframe에서 logout.jsp 호출
 	* - 크롬을 제외한 모든 브라우져에서 작동(IE기준으로 개발됨)
 	*/	  
-	$(window).bind(
-		"beforeunload",
- 		function() {
-			//alert("event.clientX: " + event.clientX);
-			//alert("event.clientY: " + event.clientY);
-			//alert("event.pageX: " + event.pageX);
-			//alert("event.pageY: " + event.pageY);
-			//alert("event.screenX: " + event.screenX);
-			//alert("event.screenY: " + event.screenY);
+	// 닫기 버튼 클릭 시 로그아웃 기능 제거 요청으로 인해 제거
+// 	$(window).bind(
+// 		"beforeunload",
+//  		function() {
+// 			//alert("event.clientX: " + event.clientX);
+// 			//alert("event.clientY: " + event.clientY);
+// 			//alert("event.pageX: " + event.pageX);
+// 			//alert("event.pageY: " + event.pageY);
+// 			//alert("event.screenX: " + event.screenX);
+// 			//alert("event.screenY: " + event.screenY);
 			  
-			//if(event.clientX < 0 && event.clientY < 0) {
-			if(event.clientY < 0 || event.pageY < 0 || event.screenY < 0) {				
+// 			//if(event.clientX < 0 && event.clientY < 0) {
+// 			if(event.clientY < 0 || event.pageY < 0 || event.screenY < 0) {				
 
 	<%
-			logger.debug("session-LinkYN (1): " + session.getAttribute("LinkYN"));
+// 			logger.debug("session-LinkYN (1): " + session.getAttribute("LinkYN"));
 			
-			// DashBoard에서 다른 메뉴로 화면 이동시 해당 function이 호출되어 페이지이동 처리하는 화면에서 LinkYN값을 "Y"로 전달하여 로그아웃 방지
-			if(session.getAttribute("LinkYN") == null) {	
+// 			// DashBoard에서 다른 메뉴로 화면 이동시 해당 function이 호출되어 페이지이동 처리하는 화면에서 LinkYN값을 "Y"로 전달하여 로그아웃 방지
+// 			if(session.getAttribute("LinkYN") == null) {	
 	%>
-				//숨겨진 iframe에서 logout.jsp 호출
-				$("#closeForm").attr("target", "closeIframe").attr("method", "post").attr("action", "logoutPrc.jsp").submit();			  				 		
-				alert("로그아웃 하셨습니다.");
+// 				//숨겨진 iframe에서 logout.jsp 호출
+// 				$("#closeForm").attr("target", "closeIframe").attr("method", "post").attr("action", "logoutPrc.jsp").submit();			  				 		
+// 				alert("로그아웃 하셨습니다.");
 	<%
-			}
-			session.removeAttribute("LinkYN");
-			logger.debug("session-LinkYN (2): " + session.getAttribute("LinkYN"));
+// 			}
+// 			session.removeAttribute("LinkYN");
+// 			logger.debug("session-LinkYN (2): " + session.getAttribute("LinkYN"));
 	%>
-			} // if
-	}); // $(window).bind(
+// 			} // if
+// 	}); // $(window).bind(
 	 
 </script>
 </head>
@@ -566,13 +779,13 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 			} // for문
 			if (EisUtil.isNotBlank(MInfoZPARAM)) { // 하위에 1개라도 등록된 페이지가 있는 경우에는 가장 상단의 페이지 호출
 %>
-					<li id = "li_<%=MInfo.getZLEVEL1()%>" onmouseover="javascript:fn_div_mouseover(1, '<%=MInfo.getZLEVEL1()%>');" class="top_menu_bgimg<%=MInfo.getZLEVEL1()%>_off"  onmouseout="javascript:fn_div_mouseover(2, '<%=MInfo.getZLEVEL1()%>');">
+					<li id = "li_<%=MInfo.getZLEVEL1()%>" onmouseover="javascript:fn_div_mouseover(1, '<%=MInfo.getZLEVEL1()%>');" class="top_menu_bgimg<%=EisUtil.isNumeric(MInfo.getZLEVEL1())? Integer.parseInt(MInfo.getZLEVEL1()): MInfo.getZLEVEL1()%>_off"  onmouseout="javascript:fn_div_mouseover(2, '<%=MInfo.getZLEVEL1()%>');">
 						<a href="javascript:fn_div_display('<%=MInfo.getZLEVEL1()%>');fn_gopage('<%=MInfoZLEVEL1%>', '<%=MInfoZLEVEL2%>', '<%=MInfoZLEVEL3%>', '<%=MInfoZPARAM%>', '<%=MInfoZURL%>', '<%=MInfoZEIS_DATE%>', '<%=langu%>');" >
 							<%=MInfo.getZTEXT()%>
 						</a>
 						<div class="layer_menu">
-							<ul class="tsub">		
-								<li>
+							<ul class="tsub" style="display: none;">		
+								<li style=" display: block;">
 <%								
 				for(int a = 0 ; a < slist.size() ; a++) { 
 					SMInfo = (MenuInfo)slist.elementAt(a); 
@@ -581,15 +794,32 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 						if(SMInfo.getZNODE_TYPE().equals("F")) { // 2Lv
 %>
 
-									<a href="#" class="tsub_on" >								
-										<%=SMInfo.getZTEXT()%>
+									<a href="#" class="tsub_on tgroup"  style="cursor:default;">								
+										<<%=SMInfo.getZTEXT()%>>
 									</a>
 						
 <%					
 						} else if(SMInfo.getZLEVEL3().equals("00")) { // 2Lv에 바로 화면이 나오는 경우
 %>
 									<span>
-										<a href="#" onclick="javascript: fn_div_display('<%=MInfo.getZLEVEL1()%>'); fn_gopage('<%=MInfo.getZLEVEL1()%>','<%=SMInfo.getZLEVEL2()%>','<%=SMInfo.getZLEVEL3()%>',  '<%=SMInfo.getZPARAM()%>', '<%=SMInfo.getZURL()%>', '<%=SMInfo.getZEIS_DATE()%>', '<%=langu%>')">						
+									<%
+										if(SMInfo.getZBOOKMARK().equals("X")){
+											if(SMInfo.getZFIXED().equals("X")){
+									%>
+										<img class="ico_star" src="images/ico_star_fix.png"/>
+									<%
+											} else {
+									%>
+										<img class="ico_star" src="images/ico_star_on.png" onclick="javascript:fn_reloadmenu('<%=SMInfo.getZURL()%>');"/>
+									<%
+											}
+										} else {
+									 %>
+										<img class="ico_star" src="images/ico_star_off.png" onclick="javascript:fn_reloadmenu('<%=SMInfo.getZURL()%>');"/>
+									<%
+										}
+									%>
+										<a href="#" class="tmenu" onclick="javascript: fn_div_display('<%=MInfo.getZLEVEL1()%>'); fn_gopage('<%=MInfo.getZLEVEL1()%>','<%=SMInfo.getZLEVEL2()%>','<%=SMInfo.getZLEVEL3()%>',  '<%=SMInfo.getZPARAM()%>', '<%=SMInfo.getZURL()%>', '<%=SMInfo.getZEIS_DATE()%>', '<%=langu%>')">						
 											<%=SMInfo.getZTEXT()%>						
 										</a>
 									</span>
@@ -597,8 +827,25 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 						} else {
 %>
 									<span>
-										<a href="#" onclick="javascript:fn_div_display('<%=MInfo.getZLEVEL1()%>'); fn_gopage('<%=MInfo.getZLEVEL1()%>','<%=SMInfo.getZLEVEL2()%>','<%=SMInfo.getZLEVEL3()%>',  '<%=SMInfo.getZPARAM()%>', '<%=SMInfo.getZURL()%>', '<%=SMInfo.getZEIS_DATE()%>', '<%=langu%>')">						
-											- <%=SMInfo.getZTEXT()%>						
+									<%
+										if(SMInfo.getZBOOKMARK().equals("X")){
+											if(SMInfo.getZFIXED().equals("X")){
+									%>
+										<img class="ico_star" src="images/ico_star_fix.png"/>
+									<%
+											} else {
+									%>
+										<img class="ico_star" src="images/ico_star_on.png" onclick="javascript:fn_reloadmenu('<%=SMInfo.getZURL()%>');"/>
+									<%
+											}
+										} else {
+									 %>
+										<img class="ico_star" src="images/ico_star_off.png" onclick="javascript:fn_reloadmenu('<%=SMInfo.getZURL()%>');"/>
+									<%
+										}
+									%>
+										<a href="#" class="tmenu" onclick="javascript:fn_div_display('<%=MInfo.getZLEVEL1()%>'); fn_gopage('<%=MInfo.getZLEVEL1()%>','<%=SMInfo.getZLEVEL2()%>','<%=SMInfo.getZLEVEL3()%>',  '<%=SMInfo.getZPARAM()%>', '<%=SMInfo.getZURL()%>', '<%=SMInfo.getZEIS_DATE()%>', '<%=langu%>')">						
+											&nbsp;<%=SMInfo.getZTEXT()%>						
 										</a>
 									</span>
 <%
@@ -647,14 +894,14 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 %>
 
 					
-					<div id = "div_<%=MInfo.getZLEVEL1()%><%=SMInfo.getZLEVEL2()%>"  class="left_btn_off" onclick="javascript:fn_sub_div_display('<%=MInfo.getZLEVEL1()%>','<%=SMInfo.getZLEVEL2()%>')">
+					<div id = "div_<%=MInfo.getZLEVEL1()%><%=SMInfo.getZLEVEL2()%>"  class="left_btn_off" onclick="javascript:fn_sub_div_display('<%=MInfo.getZLEVEL1()%>','<%=SMInfo.getZLEVEL2()%>')" style="display: none;">
 						<%=SMInfo.getZTEXT()%>
 					</div>					
 <%					
 					} else if(SMInfo.getZLEVEL3().equals("00")) { // 2Lv에 바로 화면이 나오는 경우
 %>
 					<a href="#" onclick="javascript:fn_gopage('<%=MInfo.getZLEVEL1()%>','<%=SMInfo.getZLEVEL2()%>','<%=SMInfo.getZLEVEL3()%>',  '<%=SMInfo.getZPARAM()%>', '<%=SMInfo.getZURL()%>', '<%=SMInfo.getZEIS_DATE()%>', '<%=langu%>')">
-						<div id ="div_<%=MInfo.getZLEVEL1()%><%=SMInfo.getZLEVEL2()%><%=SMInfo.getZLEVEL3()%>" class="left_btn_off_2lv">
+						<div id ="div_<%=MInfo.getZLEVEL1()%><%=SMInfo.getZLEVEL2()%><%=SMInfo.getZLEVEL3()%>" class="left_btn_off_2lv" style="display: none;">
 							<%=SMInfo.getZTEXT()%>
 						</div>
 					</a>
@@ -662,8 +909,8 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 					} else {
 %>
 					<a href="#" onclick="javascript:fn_gopage('<%=MInfo.getZLEVEL1()%>','<%=SMInfo.getZLEVEL2()%>','<%=SMInfo.getZLEVEL3()%>',  '<%=SMInfo.getZPARAM()%>', '<%=SMInfo.getZURL()%>', '<%=SMInfo.getZEIS_DATE()%>', '<%=langu%>')">
-						<div id ="div_<%=MInfo.getZLEVEL1()%><%=SMInfo.getZLEVEL2()%><%=SMInfo.getZLEVEL3()%>" class="left_btn_off_3lv">
-							- <%=SMInfo.getZTEXT()%>
+						<div id ="div_<%=MInfo.getZLEVEL1()%><%=SMInfo.getZLEVEL2()%><%=SMInfo.getZLEVEL3()%>" class="left_btn_off_3lv" style="display: none;">
+							&nbsp;<%=SMInfo.getZTEXT()%>
 						</div>
 					</a>
 <%
@@ -675,7 +922,7 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 %>		
      		</nav>
   		</section>
-	</div>     
+	</div>     	
     <!-- 왼쪽메뉴 end -->  
 
 	<!-- 콘텐츠박스 start  -->
@@ -684,15 +931,23 @@ for(int i = 0 ; i < vlist.size() ; i++) {
 <%   
 		//<iframe src = "" id = "dashboard" width = "85.55%"  height ="93.5%" frameboard = "0" scrolling = "no" frameborder="0" cellpadding="0" cellspacing="0" align="left"></iframe>			
 %>
-		<iframe src = "" id = "dashboard" width = "100%"  height ="100%" frameboard = "0" scrolling = "no" frameborder="0" cellpadding="0" cellspacing="0" align="left"></iframe>
+		<iframe src = "" id = "dashboard" width = "100%"  height ="100%" scrolling = "no" frameborder="0" align="left"></iframe>
 	</div>
 		  		
 	<!-- 콘텐츠박스 end -->
 </div>  
+<form id="closeForm"></form>
+<iframe src="" id="closeIframe" name="closeIframe" width="0" height="0"></iframe>
+<form id="logForm">
+	<input type="hidden" name="ZMENU_CD" id="ZMENU_CD" value="" />
+	<input type="hidden" name="lv1" id="lv1" value="" />
+	<input type="hidden" name="lv2" id="lv2" value="" />
+	<input type="hidden" name="lv3" id="lv3" value="" />	
+</form>
+<iframe src="" id="logIframe" name="logIframe" width="0" height="0"></iframe>  
 </body>
 </html>
 <%
 	} // if(session.getAttribute("userInfo") == null) {
 %>
-<form id="closeForm"></form>
-<iframe src="" id="closeIframe" name="closeIframe" width="0" height="0"></iframe> 
+

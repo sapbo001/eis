@@ -12,8 +12,7 @@ body, html {
 	/*background: url(../images/left_bg.png) repeat-y left top;*//*센터-주석*/
 	/*padding-bottom:20px;*/
 	/*background-color:#f0f3f9;*/	
-	background-color:#ffffff;
-
+	background-color:#ffffff;		
 }
 
 #wrap {
@@ -104,11 +103,15 @@ body, html {
 /*	
 	width: 182px;
 */	 	
-	width: 95px;/*20160329 이경원 수정 */
+	/*width: 95px;*//*20160329 이경원 수정 */
+	width: 85px;/*20160525 이경원 수정 */	
 	height: 50px;
-	padding-left:24px;/*20160329 이경원 추가 */	
+	/*padding-left:24px;*//*20160329 이경원 추가 */	
+	padding-left:34px;/*20160525 이경원 추가 */	
 
-	font: 15px "Nanum Gothic", sans-serif;
+	/*font: 15px "Nanum Gothic", sans-serif;*/
+	font: 14px "Nanum Gothic", sans-serif;/*20160525 이경원 수정 */
+	
     line-height: 50px;
 	/*color: #ffbdc8; 레이어*/
 	color: #fff;opacity: 0.8;/*20160329 이경원 수정 */
@@ -324,7 +327,7 @@ main
 	display:block; height:43px; line-height:43px; text-indent:17px; font-size:13px; color:#bec3cd
 }
 
-.top_menu_bgimg01_on {
+.top_menu_bgimg1_on {
 	background: url(../images/ico_menu01_on.png) no-repeat left center;	
 }
 .top_menu_bgimg1_off {
@@ -468,8 +471,13 @@ main
 /*.tsub{position: absolute;border-bottom:3px solid #b00c28; background-color: #1d2535; left:-1px;opacity: 0.8;}*/
 .tsub{position: absolute;border-bottom:3px solid #b00c28; background-color: #1d2535; left:-1px;opacity: 1;}
 /*.tsub li{left:0px;text-align: left!important;	background: url(../images/sub_menu.png) no-repeat right top}*/
-.tsub li{left:0px;text-align: left!important;}
-.tsub li a {color:#bec3cd!important;font-size:13px!important;width: 150px !important;height: 40px!important;line-height: 40px!important;}
+.tsub li{left:0px;text-align: left!important; width:200px;}
+/*.tsub li a {color:#bec3cd!important;font-size:13px!important;width: 150px !important;height: 40px!important;line-height: 40px!important;}*/
+.tgroup {padding-right:0px;padding-left:4px!important; color:#bec3cd!important;font-size:13px!important;width: 195px !important;height: 40px!important;line-height: 40px!important;}
+.tmenu {padding-right:0px;padding-left:4px!important; color:#bec3cd!important;font-size:13px!important;width: 170px !important;height: 40px!important;line-height: 40px!important;}
+.tsub li .ico_star { cursor:pointer; padding: 12px 2px 0 4px; float: left; } 
+.tsub li span { display: block; float: left;}
+
 /*
 .tsub li a:hover,
 .tsub li.active a {color:#bec3cd!important }
@@ -479,8 +487,9 @@ main
 .tsub li span a:hover,
 .tsub li span.active a {color:#FFFF48!important }
 /*.tsub li span a{ font-size:12px!important;;height: 30px!important;line-height:20px!important;}*/
-.tsub li span a{ font-size:13px!important;;height: 40px!important;line-height:40px!important;}
-.tsub_on { color:#bec3cd!important;background:url(../images/sub_menu_on.png) no-repeat right top!important;}
+.tsub li span a{ font-size:13px!important;;height: 40px!important;line-height:40px!important; float: left;}
+.tsub_on { color:#bec3cd!important;background:url(../images/sub_menu_on.png?a=2) no-repeat right top!important;}
+
 
 
 /************************************************************************************
@@ -497,10 +506,20 @@ body.login #login { position:absolute; left:50%; top:50%; margin:-255px 0 0 -255
 	-webkit-box-sizing: border-box;
 
 }
+/* body.login #login1 { position:absolute; left:50%; top:50%; margin:-255px 0 0 -255px; width:511px; height:511px; background:url(../images/MSG_01.png) no-repeat right; text-align:center;
+	border:1px solid #d7d7d7; 
+	border-radius:4px;
+	box-sizing: border-box; 
+	-o-box-sizing: border-box; 
+	-ms-box-sizing: border-box; 
+	-moz-box-sizing: border-box; 
+	-webkit-box-sizing: border-box;
+
+} */
 body.login #login ul {}
 body.login #login li { padding:0 0 7px 0;}
 body.login #login select { border:1px solid #c2c2c2;}
-body.login #login input { border-radius:0; border:1px solid #d9d9d9; height:43px; width:365px; font-size:12px;}
+body.login .login_input { border-radius:0; border:1px solid #d9d9d9; height:43px; width:365px; font-size:12px;}
 body.login #login p { position:absolute}
 body.login #login p a { display:block;}
 .top_logo {margin: 100px auto 55px;text-align: center; font-size:34px; color:#272b35}
@@ -508,7 +527,7 @@ body.login #login p a { display:block;}
 .btn_log{
 	text-align:center; 
 	margin-top:15px;
-	margin-bottom: 100px;
+	margin-bottom: 80px;
 }
 .btn_log a{
 	width:367px; 
@@ -531,10 +550,39 @@ body.login #login p a { display:block;}
 .error{ text-align:center;position: relative; padding-top:200px; font-size:16px}
 .error span {font-size:34px;color: #eb3857; line-height:80px}
 */
-.login_notice {text-align: left; font-size:13px; color:#272b35;left:70px;position: absolute; background:url(../images/login_notice.png) no-repeat 5px 5px; padding:3px 30px 0px 26px; width:360px}
-.login_notice span{}
+.login_notice {text-align: left; font-size:12px; color:#272b35;left:70px;position: absolute; background:url(../images/login_notice.png) no-repeat 5px 5px; padding:3px 30px 0px 26px; width:360px}
+.login_notice div{text-align: center; padding: 0px 35px 0px 0px;}
 
 .error{ text-align:center;position: relative; padding-top:200px; font-size:16px}
 .error span {font-size:34px;color: #eb3857; line-height:80px}
+
+
+
+/************************************************************************************
+Password
+*************************************************************************************/
+body.password { width:100%; height:100%; min-height:468px}
+body.password #password { position:absolute; left:50%; top:50%; margin:-255px 0 0 -255px; width:511px; height:511px; background:url(../images/img_20160517_02.png) no-repeat right; text-align:center;
+	border:1px solid #d7d7d7; 
+	border-radius:4px;
+	box-sizing: border-box; 
+	-o-box-sizing: border-box; 
+	-ms-box-sizing: border-box; 
+	-moz-box-sizing: border-box; 
+	-webkit-box-sizing: border-box;
+
+}
+body.password #password ul {}
+body.password #password li { padding:0 0 7px 0;}
+body.password #password select { border:1px solid #c2c2c2;}
+body.password #password input { border-radius:0; border:1px solid #d9d9d9; height:43px; width:365px; font-size:12px;}
+body.password #password p { position:absolute}
+body.password #password p a { display:block;}
+.top_password {margin: 50px auto 55px;text-align: center; font-size:34px; color:#272b35}
+.top_password_red{ color:#eb3857}
+.login_notice_password {text-align: left; font-size:12px; color:#272b35;left:70px;position: absolute; background:url(../images/login_notice.png) no-repeat 5px 5px; padding:3px 30px 50px 26px; width:360px}
+.login_notice_password div{text-align: center; padding: 0px 35px 0px 0px;}
+.input_top_password {padding-top:20px}
+
 
 

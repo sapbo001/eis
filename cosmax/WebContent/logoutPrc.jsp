@@ -43,6 +43,7 @@
 				logger.info("BO Log Off");				        
 		    }		  
 		}	    
+		session.removeAttribute("ZSABUN");
 		session.removeAttribute("userInfo");
 	 	session.removeAttribute("enterpriseSession");
 	 	session.removeAttribute("logonToken");
@@ -53,6 +54,7 @@
 	 	session.removeAttribute("ZDEFALUT_LANGU");	
 	 	session.removeAttribute("vlist");
 	 	session.removeAttribute("startMInfo");
+	 	session.removeAttribute("INFOVIEW_URL");
 	 	
 	 	//session.invalidate(); // JCO까지 세션이 날라감
 	}catch(Exception e){

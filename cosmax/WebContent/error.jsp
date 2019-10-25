@@ -27,8 +27,7 @@
 	<!-- 콘텐츠박스 start  -->                
 	<div>
     <div class = "error" ><img src="images/404.png"/><br>
-      <span>EIS 시스템에서 장애가 발생하였습니다.</span><br />
-      조속히 조치하도록 하겠습니다. <br />
+      <span><font color="black">EIS 접속이 불가합니다.</font></span><br />      
       자세한 내용은 시스템 담당자에게 문의 부탁드립니다.</div>
     </div>
 		  		
