@@ -70,6 +70,41 @@ public class MenuService {
 	}	
 	
 	/**
+	 * SAP의 User(사번기준)의 비밀번호 변경
+	 * User Table Data: ZBWT001
+	 * Fuction: ZBW_EIS_USER_PWD
+	 * - 그룹웨어에서 접속한 경우: 사번만 들어오고 유저ID 및 비번은 빈값으로 넘어옴
+	 * - 포탈 로그인페이지에서 접속한 경우: 유저ID와 비번 만 들어옴 
+	 * @param conJCO JCO Connection Object
+	 * @param sabun 사번
+	 * @param passwd 유저비번
+	 * @return boolean 성공여부
+	 */
+	public boolean setUserChgPwd(ConnectionJCO conJCO, String userid, String passwd) {
+		
+		JCoFunction function = null;
+		String E_SUCCESS_YN = "";
+		boolean rtn = false;
+		try {			
+			function = conJCO.getFunction("ZBW_EIS_USER_PWD");
+				                     			
+			function.getImportParameterList().setValue("I_USERID", userid); // (RFC 변수명, 값)-EIS 대표계정(로그인페이지 접속)
+			function.getImportParameterList().setValue("I_USERPWD_NEW", passwd); // (RFC 변수명, 값)-EIS 유저PASSWORD(로그인페이지 접속)
+
+			conJCO.execute(function);
+			
+			E_SUCCESS_YN = function.getExportParameterList().getString("E_SUCCESS_YN");
+			
+			if("Y".equals(E_SUCCESS_YN)) 
+				rtn = true;			
+						
+		} catch (Exception e) {
+			logger.error(e);
+		}
+		return rtn;
+	}
+	
+	/**
 	 * SAP의 PFCG에 등록된 메뉴정보를 조회하는 Fuction을 호출 후 리턴값 세팅
 	 * PFCG-ROLE: ZEIS_M_TOTAL
 	 * Fuction: ZBW_EIS_MENU
@@ -78,7 +113,7 @@ public class MenuService {
 	 * @param langu 언어 <-- BO에 해당 User로 세팅되어 있는 로케일값을 이용
 	 * @return Vector<MenuInfo> 메뉴정보 리스트
 	 */	
-	public Vector<MenuInfo> getMenu(ConnectionJCO conJCO, String userid, String langu) {
+	public Vector<MenuInfo> getMenu(ConnectionJCO conJCO, String userid, String langu, String sabun, String zurl, String bookmark) {
 		Vector<MenuInfo> list = new Vector<MenuInfo>();
 
 		try {
@@ -88,6 +123,9 @@ public class MenuService {
 //			function.getImportParameterList().setValue("I_USERID", "CBO_BO1"); // 테스트계정 (RFC 변수명, 값)
 			function.getImportParameterList().setValue("I_USERID", userid); // (RFC 변수명, 값) - EIS 대표계정
 			function.getImportParameterList().setValue("I_LANGU", langu); // (RFC 변수명, 값) - 3:한국어,E:영어,1:중국어,J:일본어
+			function.getImportParameterList().setValue("I_SABUN", sabun);
+			function.getImportParameterList().setValue("I_ZURL", zurl);
+			function.getImportParameterList().setValue("I_MARK", bookmark);
 
 			conJCO.execute(function);
 
@@ -110,6 +148,7 @@ public class MenuService {
 					menuInfo.setZTEXT_LANG(EisUtil.null2Blank(table.getString("ZTEXT_LANG")));
 					menuInfo.setZEIS_DATE(EisUtil.null2Blank(table.getString("ZEIS_DATE")));
 					menuInfo.setZSTART_MENU_YN(EisUtil.null2Blank(table.getString("ZSTART_MENU_YN")));
+					menuInfo.setZBOOKMARK(EisUtil.null2Blank(table.getString("ZBOOKMARK")));
 
 					list.addElement(menuInfo);
 				
@@ -212,5 +251,43 @@ public class MenuService {
 		}
 		return enterpriseSession;
 	}
+		
+   /**
+	 * 로그인 및 메뉴클릭에 대한 사용자 로그처리
+	 * User Table Data: ZBWT006
+	 * Fuction: ZBW_EIS_LOG
+	 * - EIS 로그구분(1:로그인, 2:메뉴클릭) <-- ZGUBUN_CONUSE 
+	 * @param conJCO JCO Connection Object
+	 */
+	public boolean insEisConLog(ConnectionJCO conJCO, String ZGUBUN_CONUSE
+			, String ZSABUN, String ZEIS_USER_ID, String ZMENU_CD, String ZUSER_IP
+			, String ZMENU_NM, String ZTOPMENU_NM) {
+		
+		JCoFunction function = null;
+		String E_SUCCESS_YN = "";
+		boolean rtn = false;
+		try {			
+			function = conJCO.getFunction("ZBW_EIS_LOG");
+			
+			function.getImportParameterList().setValue("I_ZGUBUN_CONUSE", ZGUBUN_CONUSE); 
+			function.getImportParameterList().setValue("I_ZSABUN", ZSABUN);
+			function.getImportParameterList().setValue("I_ZEIS_USER_ID", ZEIS_USER_ID);
+			function.getImportParameterList().setValue("I_ZMENU_CD", ZMENU_CD);
+			function.getImportParameterList().setValue("I_ZUSER_IP", ZUSER_IP);
+			function.getImportParameterList().setValue("I_ZMENU_NM", ZMENU_NM);
+			function.getImportParameterList().setValue("I_ZTOPMENU_NM", ZTOPMENU_NM);			
+
+			conJCO.execute(function);
+			
+			E_SUCCESS_YN = function.getExportParameterList().getString("E_SUCCESS_YN");
+			
+			if("Y".equals(E_SUCCESS_YN)) 
+				rtn = true;			
+						
+		} catch (Exception e) {
+			logger.error(e);
+		}
+		return rtn;
+	}		
 
 }

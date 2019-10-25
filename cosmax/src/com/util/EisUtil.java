@@ -37,6 +37,22 @@ public class EisUtil {
     public static String null2Blank(String str) {
         return (str == null? "": str);
     }
+    
+    /**
+     * str의 값이 숫자인지 체크
+     * @param str 문자
+     * @return 숫자이면 true리턴 아니면 false리턴
+     */
+    public static boolean isNumeric(String str) {
+    	  try {
+    	      Double.parseDouble(str);
+    	      return true;
+    	  } catch(NumberFormatException e) {
+    	      return false;
+    	  } catch(Exception e) {
+    	      return false;
+    	  }
+    	}    
 	
 
 }

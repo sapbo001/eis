@@ -19,6 +19,7 @@ public class MenuInfo {
 	private String ZPARAM;
 	private String ZTEXT_LANG;
 	private String ZSTART_MENU_YN;
+	private String ZBOOKMARK;
 	
 	public String getZSTART_MENU_YN() {
 		return ZSTART_MENU_YN;
@@ -141,6 +142,14 @@ public class MenuInfo {
 
 	public void setZPARAM(String zPARAM) {
 		ZPARAM = zPARAM;
+	}
+
+	public String getZBOOKMARK() {
+		return ZBOOKMARK;
+	}
+
+	public void setZBOOKMARK(String zBOOKMARK) {
+		ZBOOKMARK = zBOOKMARK;
 	}
 
 }
