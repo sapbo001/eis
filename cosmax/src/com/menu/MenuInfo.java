@@ -4,7 +4,7 @@ package com.menu;
 /**
  * EIS Menu Data Bean Class
  */
-public class MenuInfo {
+public class MenuInfo { 
 	private String ZLEVEL1;
 	private String ZLEVEL2;
 	private String ZLEVEL3;
